@@ -1,0 +1,15 @@
+{
+  "dingtalk": {
+    "app_key": "dingxxxxxxxxxx",
+    "app_secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "agent_id": "xxxxxxxx"
+  },
+  "smtp": {
+    "listen_addr": ":2525",
+    "domain": "mail.example.com"
+  },
+  "user_mappings": {
+    "user@example.com": "13800138000",
+    "another-user@example.com": "13900139000"
+  }
+}
