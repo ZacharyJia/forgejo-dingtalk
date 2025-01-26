@@ -13,6 +13,7 @@ import (
 	"strings"
 	"time"
 
+	html2md "github.com/JohannesKaufmann/html-to-markdown/v2"
 	"github.com/emersion/go-smtp"
 	"github.com/zacharyjia/forgejo-dingtalk/internal/config"
 	"github.com/zacharyjia/forgejo-dingtalk/internal/dingtalk"
@@ -202,28 +203,11 @@ func handleMultipartMessage(reader io.Reader, boundary string) string {
 
 		switch mediaType {
 		case "text/html":
-			// 对HTML内容进行处理，仅移除顶级style标签
-			if start := strings.Index(strings.ToLower(content), "</head>"); start != -1 {
-				// 如果找到</head>标签，只清理head标签内的style标签
-				head := content[:start]
-				body := content[start:]
-
-				// 从head部分移除style标签
-				for {
-					styleStart := strings.Index(strings.ToLower(head), "<style")
-					if styleStart == -1 {
-						break
-					}
-					styleEnd := strings.Index(strings.ToLower(head[styleStart:]), "</style>")
-					if styleEnd == -1 {
-						break
-					}
-					styleEnd += styleStart + 8 // 加上"</style>"的长度
-					head = head[:styleStart] + head[styleEnd:]
-				}
-
-				htmlContent = head + body
+			// 将HTML转换为Markdown
+			if markdown, err := html2md.ConvertString(content); err == nil {
+				htmlContent = markdown
 			} else {
+				log.Printf("转换HTML到Markdown失败: %v", err)
 				htmlContent = content
 			}
 		case "text/plain":
