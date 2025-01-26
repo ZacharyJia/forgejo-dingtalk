@@ -42,7 +42,8 @@ go build
 {
   "dingtalk": {
     "app_key": "dingxxxxxxxxxx",
-    "app_secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+    "app_secret": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "agent_id": "123456789"
   },
   "smtp": {
     "listen_addr": ":2525",
@@ -51,22 +52,17 @@ go build
   "user_mappings": {
     "user@example.com": "13800138000",
     "another-user@example.com": "13900139000"
-  },
-  "forgejo": {
-    "base_url": "https://your-forgejo-instance/api/v1",
-    "token": "your-personal-access-token"
   }
 }
 ```
 
 配置说明：
-- `app_key`: 钉钉应用的 AppKey
-- `app_secret`: 钉钉应用的 AppSecret
+- `dingtalk.app_key`: 钉钉应用的 AppKey
+- `dingtalk.app_secret`: 钉钉应用的 AppSecret
+- `dingtalk.agent_id`: 钉钉应用的 AgentId
 - `smtp.listen_addr`: SMTP 服务器监听地址和端口
 - `smtp.domain`: SMTP 服务器域名（用于 SMTP 握手）
 - `user_mappings`: 用户邮箱地址到钉钉用户手机号的映射关系
-- `forgejo.base_url`: Forgejo API 地址
-- `forgejo.token`: Forgejo 个人访问令牌
 
 ## 运行
 
