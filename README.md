@@ -90,6 +90,34 @@ go build
 4. 根据配置的映射关系，找到对应的钉钉用户
 5. 将邮件内容转换为 Markdown 格式，发送给对应的钉钉用户
 
+
+## Docker Compose 使用说明
+
+1. 复制配置文件：
+```bash
+cp config.example.json config.json
+```
+
+2. 启动服务：
+```bash
+docker-compose up -d
+```
+
+3. 停止服务：
+```bash
+docker-compose down
+```
+
+4. 查看日志：
+```bash
+docker-compose logs -f
+```
+
+5. 更新服务（修改配置后）：
+```bash
+docker-compose restart
+```
+
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！

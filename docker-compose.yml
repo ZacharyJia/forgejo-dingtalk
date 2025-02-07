@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  forgejo-dingtalk:
+    build: .
+    ports:
+      - "2525:2525"
+    volumes:
+      - ./config.json:/app/config.json
+    restart: always
