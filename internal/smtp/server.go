@@ -3,6 +3,7 @@ package smtp
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"io"
 	"log"
 	"mime"
@@ -83,7 +84,11 @@ func (s *Session) Data(r io.Reader) error {
 	// log.Printf("收到邮件:\nSubject: %s\nFrom: %s\nTo: %v\nContent:\n%s",
 	// 	subject, s.from, s.to, content)
 
-	// 对每个收件人处理
+	// 收集所有需要发送的用户ID
+	var dingTalkIDs []string
+	failedEmails := make(map[string]error)
+
+	// 首先收集所有的钉钉用户ID
 	for _, to := range s.to {
 		// 提取邮件地址
 		emailAddr := extractEmailAddress(to)
@@ -92,29 +97,41 @@ func (s *Session) Data(r io.Reader) error {
 		mobile, ok := s.backend.config.UserMappings[emailAddr]
 		if !ok {
 			log.Printf("未找到用户映射: %s", emailAddr)
+			failedEmails[emailAddr] = fmt.Errorf("未找到用户映射")
 			continue
 		}
 
 		dingTalkID, err := s.backend.dingtalk.GetUserIdByMobile(mobile)
 		if err != nil {
 			log.Printf("获取用户ID失败 (mobile: %s): %v", mobile, err)
+			failedEmails[emailAddr] = fmt.Errorf("获取用户ID失败: %v", err)
 			continue
 		}
 
+		dingTalkIDs = append(dingTalkIDs, dingTalkID)
+	}
+
+	// 如果有有效的接收者，则发送消息
+	if len(dingTalkIDs) > 0 {
 		// 构造钉钉消息
 		msg := formatDingTalkMessage(subject, body, s.from)
 
-		// 记录要发送的钉钉消息内容
-		// log.Printf("发送钉钉消息到 %s:\n%s", emailAddr, msg)
+		// 将所有用户ID合并成逗号分隔的字符串
+		userIDList := strings.Join(dingTalkIDs, ",")
 
-		// 发送钉钉消息
-		err = s.backend.dingtalk.SendMessage(dingTalkID, msg)
+		// 批量发送钉钉消息
+		err := s.backend.dingtalk.SendMessage(userIDList, msg)
 		if err != nil {
-			log.Printf("发送钉钉消息失败 (to: %s): %v", emailAddr, err)
-			continue
+			log.Printf("批量发送钉钉消息失败: %v", err)
+			return err
 		}
 
-		log.Printf("成功发送钉钉消息到: %s", emailAddr)
+		log.Printf("成功发送钉钉消息到 %d 个用户", len(dingTalkIDs))
+	}
+
+	// 如果有失败的邮件地址，记录日志
+	for email, err := range failedEmails {
+		log.Printf("发送失败 (to: %s): %v", email, err)
 	}
 
 	return nil
