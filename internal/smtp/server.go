@@ -120,6 +120,8 @@ func (s *Session) Data(r io.Reader) error {
 		userIDList := strings.Join(dingTalkIDs, ",")
 
 		// 批量发送钉钉消息
+		// 事实证明没有什么用，因为forgejo的邮件是每个用户一个邮件，所以仍然需要一个一个发送
+		// but anyway, it's a good idea to use batch sending
 		err := s.backend.dingtalk.SendMessage(userIDList, msg)
 		if err != nil {
 			log.Printf("批量发送钉钉消息失败: %v", err)
